@@ -1,6 +1,6 @@
 # Deploymet link :-
 
- https://master--darling-flan-7fe217.netlify.app/
+ https://zomatopulse-bctydkb4k-naveen-ps-projects.vercel.app/
 
 # Getting Started with Create React App
 
