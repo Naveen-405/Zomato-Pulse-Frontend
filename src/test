@@ -177,3 +177,169 @@ const Test = () => {
 };
 
 export default Test;
+
+
+import React, { useState, useEffect, useRef } from 'react';
+import Tree from 'react-d3-tree';
+import styled from 'styled-components';
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
+const TreeContainer = styled.div`
+  width: 70%;
+  height: 600px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  overflow: auto;
+`;
+
+const DetailsContainer = styled.div`
+  width: 30%;
+  padding: 20px;
+  border-left: 1px solid #ccc;
+  background-color: #ffffff;
+`;
+
+const data = {
+  name: 'Root Member',
+  attributes: {
+    email: 'root@example.com',
+    subscriptionPlan: 'Premium',
+    subscription: true,
+    postCount: 100,
+  },
+  children: [
+    {
+      name: 'Parent 1',
+      attributes: {
+        email: 'parent1@example.com',
+        subscriptionPlan: 'Standard',
+        subscription: true,
+        postCount: 50,
+      },
+      children: [
+        {
+          name: 'Child 1',
+          attributes: {
+            email: 'child1@example.com',
+            subscriptionPlan: 'Basic',
+            subscription: false,
+            postCount: 10,
+          },
+        },
+        {
+          name: 'Child 2',
+          attributes: {
+            email: 'child2@example.com',
+            subscriptionPlan: 'Basic',
+            subscription: true,
+            postCount: 5,
+          },
+        },
+      ],
+    },
+    {
+      name: 'Parent 2',
+      attributes: {
+        email: 'parent2@example.com',
+        subscriptionPlan: 'Standard',
+        subscription: false,
+        postCount: 30,
+      },
+      children: [
+        {
+          name: 'Child 3',
+          attributes: {
+            email: 'child3@example.com',
+            subscriptionPlan: 'Basic',
+            subscription: false,
+            postCount: 8,
+          },
+        },
+      ],
+    },
+  ],
+};
+
+const renderRectSvgNode = ({ nodeDatum }) => (
+  <g>
+    <rect width="120" height="40" x="-60" y="-20" fill="#fff" stroke="#000" strokeWidth="2" />
+    <text fill="#000" x="0" y="5" textAnchor="middle">
+      {nodeDatum.name}
+    </text>
+  </g>
+);
+
+const GenealogyTree = () => {
+  const [selectedNode, setSelectedNode] = useState(null);
+  const treeContainerRef = useRef(null);
+
+  const handleNodeClick = (nodeData) => {
+    console.log('Node clicked:', nodeData); // Inspect the clicked node
+    setSelectedNode(nodeData);
+  };
+
+  useEffect(() => {
+    if (treeContainerRef.current) {
+      const dimensions = treeContainerRef.current.getBoundingClientRect();
+      treeContainerRef.current.scrollTo(
+        dimensions.width / 2 - dimensions.width * 0.35,
+        dimensions.height / 2 - dimensions.height * 0.3
+      );
+    }
+  }, []);
+
+  return (
+    <Container>
+      <TreeContainer ref={treeContainerRef}>
+        <Tree
+          data={data}
+          orientation="vertical"
+          translate={{ x: 200, y: 50 }}
+          pathFunc="diagonal"
+          onNodeClick={handleNodeClick}
+          renderCustomNodeElement={renderRectSvgNode}
+          styles={{
+            nodes: {
+              node: {
+                name: { stroke: '#000000', fontSize: '12px' },
+                attributes: { stroke: '#000000', fontSize: '10px' },
+              },
+              leafNode: {
+                name: { stroke: '#000000', fontSize: '12px' },
+                attributes: { stroke: '#000000', fontSize: '10px' },
+              },
+            },
+            links: {
+              link: {
+                stroke: '#000000',
+                strokeWidth: 1,
+              },
+            },
+          }}
+        />
+      </TreeContainer>
+      <DetailsContainer>
+        {selectedNode ? (
+          <>
+            <h2>Details</h2>
+            <p><strong>Name:</strong> {selectedNode.name || 'N/A'}</p>
+            <p><strong>Email:</strong> {selectedNode.attributes?.email || 'N/A'}</p>
+            <p><strong>Subscription Plan:</strong> {selectedNode.attributes?.subscriptionPlan || 'N/A'}</p>
+            <p><strong>Subscription:</strong> {selectedNode.attributes?.subscription ? 'True' : 'False'}</p>
+            <p><strong>Post Count:</strong> {selectedNode.attributes?.postCount || 'N/A'}</p>
+          </>
+        ) : (
+          <p>Click on a member to see the details</p>
+        )}
+      </DetailsContainer>
+    </Container>
+  );
+};
+
+export default GenealogyTree;
