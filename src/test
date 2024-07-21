@@ -1,0 +1,179 @@
+import React from "react";
+
+const Test = () => {
+  return (
+    <>
+      <section>
+        <div className="container">
+          <div className="row p-3 border" >
+            <div className="col-md-12 col-lg-6 " >
+            <div class="row mb-3">
+                  <label for="inputEmail3" class="col-sm-2 col-form-label">
+                    Email
+                  </label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" id="inputEmail3" />
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <label for="inputEmail3" class="col-sm-2 col-form-label">
+                    Email
+                  </label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" id="inputEmail3" />
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <label for="inputEmail3" class="col-sm-2 col-form-label">
+                    Email
+                  </label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" id="inputEmail3" />
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <label for="inputEmail3" class="col-sm-2 col-form-label">
+                    Email
+                  </label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" id="inputEmail3" />
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <label for="inputEmail3" class="col-sm-2 col-form-label">
+                    Email
+                  </label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" id="inputEmail3" />
+                  </div>
+                </div>
+              {/* <form className="d-flex flex-wrap">
+                <div class="row mb-3">
+                  <label for="inputEmail3" class="col-sm-2 col-form-label">
+                    Email
+                  </label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" id="inputEmail3" />
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <label for="inputEmail3" class="col-sm-2 col-form-label">
+                    Email
+                  </label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" id="inputEmail3" />
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <label for="inputPassword3" class="col-sm-2 col-form-label">
+                    Password
+                  </label>
+                  <div class="col-sm-10">
+                    <input
+                      type="password"
+                      class="form-control"
+                      id="inputPassword3"
+                    />
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <label for="inputPassword3" class="col-sm-2 col-form-label">
+                    Password
+                  </label>
+                  <div class="col-sm-10">
+                    <input
+                      type="password"
+                      class="form-control"
+                      id="inputPassword3"
+                    />
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <label for="inputPassword3" class="col-sm-2 col-form-label">
+                    Password
+                  </label>
+                  <div class="col-sm-10">
+                    <input
+                      type="password"
+                      class="form-control"
+                      id="inputPassword3"
+                    />
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <label for="inputPassword3" class="col-sm-2 col-form-label">
+                    information
+                  </label>
+                  <div class="col-sm-10">
+                    <input
+                      type="information"
+                      class="form-control"
+                      id="inputPassword3"
+                    />
+                  </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                  Sign in
+                </button>
+              </form> */}
+            </div>
+            <div className="col-md-12 col-lg-6">
+            <div class="row mb-3">
+                  <label for="inputEmail3" class="col-sm-2 col-form-label">
+                    Email
+                  </label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" id="inputEmail3" />
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <label for="inputEmail3" class="col-sm-2 col-form-label">
+                    Email
+                  </label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" id="inputEmail3" />
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <label for="inputEmail3" class="col-sm-2 col-form-label">
+                    Email
+                  </label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" id="inputEmail3" />
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <label for="inputEmail3" class="col-sm-2 col-form-label">
+                    Email
+                  </label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" id="inputEmail3" />
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <label for="inputEmail3" class="col-sm-2 col-form-label">
+                    Email
+                  </label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" id="inputEmail3" />
+                  </div>
+                </div>
+                
+            </div>
+          </div>
+        </div>
+      </section>
+      <style jsx>
+        {`
+            .form-control{
+                // width:233px !important;
+
+            }
+        `}
+      </style>
+    </>
+  );
+};
+
+export default Test;
