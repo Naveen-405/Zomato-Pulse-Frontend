@@ -1,0 +1,690 @@
+import React, {useState} from "react";
+import Tree from "react-d3-tree";
+import styled from "styled-components";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+// import { FaPlus } from "react-icons/fa6";
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding: 15px 0px 15px 15px;
+  position: relative;
+`;
+
+const TreeContainer = styled.div`
+  width: 100%;
+  height: 675px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #e9e9e9;
+  overflow: auto;
+  position:relative;
+`;
+
+const DetailItem = styled.p`
+  margin: 10px 0;
+  span {
+    display: inline-block;
+    width: 95px;
+    font-weight: regular;
+  }
+`;
+
+const Loader = styled.div`
+   width: 48px;
+    height: 48px;
+    border: 5px solid #000;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    }
+
+    @keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+`;
+
+const initialData = {
+  name: "Leader",
+  id: "leader",
+  downlineNumber: "L",
+  attributes: {
+    username: "Leaderuser",
+    downlineId: "001",
+    dateOfJoining: "2024-01-01",
+    level: 1,
+    referralEarnings: 500,
+    weeklyEarnings: 100,
+    totalEarnings: 1000,
+  },
+  children: [
+    {
+      name: "Downline 1",
+      id: "d1",
+      downlineNumber: "D1",
+      attributes: {
+        username: "UserD1",
+        downlineId: "002",
+        dateOfJoining: "2024-01-02",
+        level: 2,
+        referralEarnings: 100,
+        weeklyEarnings: 20,
+        totalEarnings: 200,
+      },
+      children: [] // Can be populated with more children if needed
+    },
+    {
+      name: "Downline 2",
+      id: "d2",
+      downlineNumber: "D2",
+      attributes: {
+        username: "UserD2",
+        downlineId: "003",
+        dateOfJoining: "2024-01-03",
+        level: 2,
+        referralEarnings: 150,
+        weeklyEarnings: 30,
+        totalEarnings: 300,
+      },
+      children: [] // Can be populated with more children if needed
+    },
+    {
+      name: "Downline 3",
+      id: "d3",
+      downlineNumber: "D3",
+      attributes: {
+        username: "UserD3",
+        downlineId: "004",
+        dateOfJoining: "2024-01-04",
+        level: 2,
+        referralEarnings: 200,
+        weeklyEarnings: 40,
+        totalEarnings: 400,
+      },
+      children: [] // Can be populated with more children if needed
+    },
+    {
+      name: "Downline 4",
+      id: "d4",
+      downlineNumber: "D4",
+      attributes: {
+        username: "UserD4",
+        downlineId: "005",
+        dateOfJoining: "2024-01-05",
+        level: 2,
+        referralEarnings: 250,
+        weeklyEarnings: 50,
+        totalEarnings: 500,
+      },
+      children: [] // Can be populated with more children if needed
+    },
+    {
+      name: "Downline 5",
+      id: "d5",
+      downlineNumber: "D5",
+      attributes: {
+        username: "UserD5",
+        downlineId: "006",
+        dateOfJoining: "2024-01-06",
+        level: 2,
+        referralEarnings: 300,
+        weeklyEarnings: 60,
+        totalEarnings: 600,
+      },
+      children: [] // Can be populated with more children if needed
+    },
+    {
+      name: "Downline 6",
+      id: "d6",
+      downlineNumber: "D6",
+      attributes: {
+        username: "UserD6",
+        downlineId: "007",
+        dateOfJoining: "2024-01-07",
+        level: 2,
+        referralEarnings: 350,
+        weeklyEarnings: 70,
+        totalEarnings: 700,
+      },
+      children: [] // Can be populated with more children if needed
+    },
+    {
+      name: "Downline 7",
+      id: "d7",
+      downlineNumber: "D7",
+      attributes: {
+        username: "UserD7",
+        downlineId: "008",
+        dateOfJoining: "2024-01-08",
+        level: 2,
+        referralEarnings: 400,
+        weeklyEarnings: 80,
+        totalEarnings: 800,
+      },
+      children: [] // Can be populated with more children if needed
+    },
+    {
+      name: "Downline 8",
+      id: "d8",
+      downlineNumber: "D8",
+      attributes: {
+        username: "UserD8",
+        downlineId: "009",
+        dateOfJoining: "2024-01-09",
+        level: 2,
+        referralEarnings: 450,
+        weeklyEarnings: 90,
+        totalEarnings: 900,
+      },
+      children: [] // Can be populated with more children if needed
+    }
+  ],
+};
+
+
+const GenealogyTree = () => {
+  const [treeData, setTreeData] = useState(initialData);
+  const [selectedNodeId, setSelectedNodeId] = useState(null);
+  const [showAddButton, setShowAddButton] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [newMemberDetails, setNewMemberDetails] = useState({
+    name: "",
+    downlineNumber: "",
+    username: "",
+    downlineId: "",
+    dateOfJoining: "",
+    level: 1,
+    referralEarnings: 0,
+    weeklyEarnings: 0,
+    totalEarnings: 0,
+  });
+  const [loading, setLoading] = useState(false);
+  const generateUniqueId = () => `${Date.now()}`;
+  
+  // Generate a unique downline number based on the parent's downline number
+  const generateDownlineNumber = (parentNumber, children) => {
+    if (!parentNumber) return "D1";
+    const childNumbers = children.map(child => child.downlineNumber);
+    let newNumber = 1;
+    while (childNumbers.includes(`${parentNumber}.${newNumber}`)) newNumber++;
+    return `${parentNumber}.${newNumber}`;
+  };
+
+  // Add a new node to the tree data
+  const addNodeToTree = (node, newNode) => {
+    if (node.id === selectedNodeId) {
+      node.children = [...(node.children || []), newNode];
+      return true;
+    }
+    if (node.children) {
+      for (const child of node.children) {
+        if (addNodeToTree(child, newNode)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  const handleNodeClick = (nodeDatum) => {
+    setLoading(true);
+    setTimeout(() => {
+      setSelectedNodeId(nodeDatum.id);
+      setShowAddButton(true);
+      setLoading(false);
+    }, 500);
+
+    setNewMemberDetails({
+       name: nodeDatum.name || "New Member",
+      downlineNumber: nodeDatum.downlineNumber,
+      username: nodeDatum.attributes?.username || "",
+      downlineId: nodeDatum.attributes?.downlineId || "",
+      dateOfJoining: nodeDatum.attributes?.dateOfJoining || "",
+      level: nodeDatum.attributes?.level || 1,
+      referralEarnings: nodeDatum.attributes?.referralEarnings || 0,
+      weeklyEarnings: nodeDatum.attributes?.weeklyEarnings || 0,
+      totalEarnings: nodeDatum.attributes?.totalEarnings || 0,
+    });
+  };
+
+  const handleAddMember = () => {
+    if (selectedNodeId) {
+      const parentNode = findNodeById(treeData, selectedNodeId);
+      const newMember = {
+        name: newMemberDetails.name || "New Member",
+        id: newMemberDetails.downlineId || generateUniqueId(),
+        downlineNumber: generateDownlineNumber(parentNode.downlineNumber, parentNode.children),
+        attributes: {
+          username: newMemberDetails.username || "Newuser",
+          downlineId: newMemberDetails.downlineId || generateUniqueId(),
+          dateOfJoining: newMemberDetails.dateOfJoining || new Date().toISOString().split("T")[0],
+          level: newMemberDetails.level || 0,
+          referralEarnings: newMemberDetails.referralEarnings || 0,
+          weeklyEarnings: newMemberDetails.weeklyEarnings || 0,
+          totalEarnings: newMemberDetails.totalEarnings || 0,
+        },
+        children: [],
+      };
+
+      const updatedTreeData = { ...treeData };
+      addNodeToTree(updatedTreeData, newMember);
+      setTreeData(updatedTreeData);
+      setShowAddButton(false);
+      setShowModal(false);
+    }
+  };
+
+  const findNodeById = (node, id) => {
+    if (node.id === id) return node;
+    if (node.children) {
+      for (const child of node.children) {
+        const foundNode = findNodeById(child, id);
+        if (foundNode) return foundNode;
+      }
+    }
+    return null;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setNewMemberDetails((prevDetails) => ({
+      ...prevDetails,
+      [name]: value,
+    }));
+  };
+
+  const renderRectSvgNode = ({ nodeDatum, onNodeClick, selectedNodeId }) => {
+    const isSelected = nodeDatum.id === selectedNodeId;
+    return (
+      <g
+        className={`tree-home ${isSelected ? "selected" : ""}`}
+        onClick={() => onNodeClick(nodeDatum)}
+      >
+        <rect
+          width={isSelected ? 90 : 80}
+          height={isSelected ? 90 : 70}
+          x={isSelected ? -45 : -40}
+          y={isSelected ? -45 : -35}
+          fill={isSelected ? "#fff" : "#fff"}
+          stroke={isSelected ? "#000" : "#000"}
+          strokeWidth={isSelected ? 2 : 2}
+          rx={isSelected ? 10 : 0}
+          ry={isSelected ? 10 : 0}
+        />
+        <rect
+          width="30"
+          height="30"
+          x="-15"
+          y="-28"
+          fill="black"
+          ry="30"
+          rx="30"
+        />
+        <text
+          fill="#fff"
+          x="0"
+          y="-9"
+          textAnchor="middle"
+          fontSize="12px"
+          fontWeight="bold"
+        >
+          {nodeDatum.downlineNumber}
+        </text>
+        <text fill="#000" x="0" y="20" textAnchor="middle" fontSize="12px">
+          {nodeDatum.name}
+        </text>
+        {isSelected && showAddButton && (
+          <foreignObject x={-50} y={40} width={100} height={50}>
+            <button
+              className="btn btn-dark p-1 mt-2 text-white d-flex justify-content-center align-items-center"
+              onClick={() => setShowModal(true)}
+            >
+              add
+              {/* <FaPlus style={{ fontSize: "12px" }} /> */}
+            </button>
+          </foreignObject>
+        )}
+      </g>
+    );
+  };
+
+
+  return (
+    <>
+      <section className="pb-3">
+        <div className="main-content">
+          <h3 className="page-title">Genealogy Tree</h3>
+          <div className="downline-members-container">
+            <TreeContainer>
+              <Tree
+                data={treeData}
+                orientation="vertical"
+                translate={{ x: 500, y: 200 }}
+                pathFunc={"step"}
+                renderCustomNodeElement={(rd3tProps) =>
+                  renderRectSvgNode({
+                    ...rd3tProps,
+                    onNodeClick: handleNodeClick,
+                    selectedNodeId: selectedNodeId,
+                  })
+                }
+                styles={{
+                  nodes: {
+                    node: {
+                      name: { stroke: "#000000", fontSize: "12px" },
+                      attributes: { stroke: "#000000", fontSize: "10px" },
+                    },
+                  },
+                }}
+              />
+              {/* {loading && (
+                <Loader style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }} />
+              )} */}
+            </TreeContainer>
+
+            <div className="user-details ms-3">
+              <h3>Member Details</h3>
+              {loading ? (
+               <div className="d-flex justify-content-center align-items-center h-100">  <Loader></Loader></div>
+              ) : selectedNodeId ? (
+                <>
+                  <DetailItem>
+                    <div className="head-box  d-flex">
+                      <div className="box">
+                        <div className="text-box">
+                          <p>Name</p>
+                          <strong>:</strong>
+                          <span className="card-details">
+                            {newMemberDetails.name}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </DetailItem>
+                  <DetailItem>
+                    <div className="head-box  d-flex">
+                      <div className="box">
+                        <div className="text-box">
+                          <p>Downline ID</p>
+                          <strong>:</strong>
+                          <span className="card-details">
+                            {newMemberDetails.downlineId}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </DetailItem>
+                  <DetailItem>
+                    <div className="head-box  d-flex">
+                      <div className="box">
+                        <div className="text-box">
+                          <p>Date of Joining</p>
+                          <strong>:</strong>
+                          <span className="card-details">
+                            {newMemberDetails.dateOfJoining}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </DetailItem>
+                  <DetailItem>
+                    <div className="head-box  d-flex">
+                      <div className="box">
+                        <div className="text-box">
+                          <p>Level</p>
+                          <strong>:</strong>
+                          <span className="card-details">
+                            {newMemberDetails.level}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </DetailItem>
+                  <DetailItem>
+                    <div className="head-box  d-flex">
+                      <div className="box">
+                        <div className="text-box">
+                          <p>Downline Member</p>
+                          <strong>:</strong>
+                          <span className="card-details">
+                            {newMemberDetails.children
+                              ? newMemberDetails.children.length
+                              : 0}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </DetailItem>
+                  <DetailItem>
+                    <div className="head-box  d-flex">
+                      <div className="box">
+                        <div className="text-box">
+                          <p>Referral Earnings</p>
+                          <strong>:</strong>
+                          <span className="card-details">
+                            ${newMemberDetails.referralEarnings}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </DetailItem>
+                  <DetailItem>
+                    <div className="head-box  d-flex">
+                      <div className="box">
+                        <div className="text-box">
+                          <p>Weekly Earnings</p>
+                          <strong>:</strong>
+                          <span className="card-details">
+                            ${newMemberDetails.weeklyEarnings}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </DetailItem>
+                  <DetailItem>
+                    <div className="head-box  d-flex">
+                      <div className="box">
+                        <div className="text-box">
+                          <p>Total Earnings</p>
+                          <strong>:</strong>
+                          <span className="card-details">
+                            ${newMemberDetails.totalEarnings}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </DetailItem>
+                </>
+              ) : (
+                <div>No member selected</div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Modal for adding a new member */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add New Member</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formMemberName">
+              <Form.Label>Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter member name"
+                name="name"
+                // value={newMemberDetails.name}
+                onChange={handleChange}
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formDownlineNumber">
+              <Form.Label>Downline Number</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter downline number"
+                name="downlineNumber"
+                // value={newMemberDetails.downlineNumber}
+                onChange={handleChange}
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formUsername">
+              <Form.Label>Username</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter username"
+                name="username"
+                // value={newMemberDetails.username}
+                onChange={handleChange}
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formDownlineId">
+              <Form.Label>Downline ID</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter downline ID"
+                name="downlineId"
+                // value={newMemberDetails.downlineId}
+                onChange={handleChange}
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formDateOfJoining">
+              <Form.Label>Date of Joining</Form.Label>
+              <Form.Control
+                type="date"
+                placeholder="Enter date of joining"
+                name="dateOfJoining"
+                // value={newMemberDetails.dateOfJoining}
+                onChange={handleChange}
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formLevel">
+              <Form.Label>Level</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Enter level"
+                name="level"
+                // value={newMemberDetails.level}
+                onChange={handleChange}
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formReferralEarnings">
+              <Form.Label>Referral Earnings</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Enter referral earnings"
+                name="referralEarnings"
+                // value={newMemberDetails.referralEarnings}
+                onChange={handleChange}
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formWeeklyEarnings">
+              <Form.Label>Weekly Earnings</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Enter weekly earnings"
+                name="weeklyEarnings"
+                // value={newMemberDetails.weeklyEarnings}
+                onChange={handleChange}
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formTotalEarnings">
+              <Form.Label>Total Earnings</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Enter total earnings"
+                name="totalEarnings"
+                // value={newMemberDetails.totalEarnings}
+                onChange={handleChange}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleAddMember}>
+            Add Member
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <style jsx>
+        {`
+          .rd3t-node {
+            stroke: unset !important;
+          }
+          .rd3t-leaf-node {
+            stroke: unset !important;
+          }
+
+          .user-details {
+            flex: 1;
+            padding-left: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            min-width: 290px;
+            position:absolute;
+            top:10px;
+            right:10px;
+          }
+
+          .user-details h2 {
+            font-size: 24px;
+            margin-top: 0;
+          }
+
+          .user-details p {
+            font-size: 16px;
+            margin-bottom: 8px;
+          }
+          .box {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+          .head-box {
+            // height: 66px !important;
+            // padding: 12px;
+          }
+          .text-box {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+          }
+          .text-box > p {
+            width: 145px;
+            margin-bottom: 0px !important;
+          }
+        `}
+      </style>
+    </>
+  );
+};
+
+export default GenealogyTree;
